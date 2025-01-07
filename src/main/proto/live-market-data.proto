@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option java_package = "com.abl.live.market.data.stubs";
+option java_multiple_files = true;
+
+enum Source {
+  UNKNOWN = 0;
+  OFFICIAL = 1;
+  THIRD_PARTY = 2;
+  INSIDER = 3;
+}
+
+message MarketDataRequest {
+  string name = 1;
+  int64 price = 2;
+  int64 timestamp = 3;
+  optional string description = 4;
+  repeated Source sources = 5;
+}
+
+message MarketDataResponse {
+  bool acknowledged = 1;
+
+  message Contact {
+
+    enum PhoneType {
+      MOBILE = 0;
+      HOME = 1;
+      WORK = 2;
+    }
+
+    string name = 1;
+    optional string phoneNumber = 2;
+    optional PhoneType type = 3;
+  }
+
+  Contact contact = 2;
+}
+
+message FetchRequest {
+  string name = 1;
+  int64 count = 2;
+  optional int64 since = 3;
+}
+
+message FetchResponse {
+  string name = 1;
+  int64 price = 2;
+  int64 timestamp = 3;
+}
+
+service LiveMarketDataService {
+  //Unary to Unary
+  rpc Update(MarketDataRequest) returns (MarketDataResponse);
+
+  //Server Streaming
+  rpc Get(FetchRequest) returns (stream FetchResponse);
+
+  //Client Streaming
+  rpc GetMultiple(stream FetchRequest) returns (FetchResponse);
+
+  //Bi Directional Streaming
+  rpc GetAll(stream FetchRequest) returns (stream FetchResponse);
+}
