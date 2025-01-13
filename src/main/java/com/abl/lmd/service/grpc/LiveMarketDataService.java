@@ -1,31 +1,31 @@
-package com.abl.lmd.service;
+package com.abl.lmd.service.grpc;
 
 import com.abl.live.market.data.stubs.*;
-import com.abl.lmd.service.stream.GetAllStreamObserver;
-import com.abl.lmd.service.stream.GetMultipleStreamObserver;
+import com.abl.lmd.service.StockService;
+import com.abl.lmd.service.grpc.stream.GetAllStreamObserver;
+import com.abl.lmd.service.grpc.stream.GetMultipleStreamObserver;
 import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.grpc.server.service.GrpcService;
 
 @GrpcService
+@RequiredArgsConstructor
 public class LiveMarketDataService extends LiveMarketDataServiceGrpc.LiveMarketDataServiceImplBase {
+
+    private final StockService stockService;
+
 
     @Override
     public void update(MarketDataRequest request, StreamObserver<MarketDataResponse> responseObserver) {
-
-        MarketDataResponse response = MarketDataResponse.newBuilder()
-                        .build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        stockService.update(request)
+                .doOnNext(responseObserver::onNext)
+                .subscribe(ignored -> responseObserver.onCompleted());
     }
 
     @Override
     public void get(FetchRequest request, StreamObserver<FetchResponse> responseObserver) {
-
-        FetchResponse response = FetchResponse.newBuilder()
-                .build();
-
-        responseObserver.onNext(response);
+        stockService.get()
+                .subscribe(responseObserver::onNext);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.abl.lmd.service.stream;
+package com.abl.lmd.service.grpc.stream;
 
 import com.abl.live.market.data.stubs.FetchRequest;
 import com.abl.live.market.data.stubs.FetchResponse;

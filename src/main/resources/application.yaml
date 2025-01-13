@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: LMD
+
+client:
+  target: "localhost:6565"
+
+mongo:
+  database-name: "lmd"
+  connection-string: "mongodb://localhost:27017"

@@ -19,22 +19,12 @@ message MarketDataRequest {
 }
 
 message MarketDataResponse {
-  bool acknowledged = 1;
-
-  message Contact {
-
-    enum PhoneType {
-      MOBILE = 0;
-      HOME = 1;
-      WORK = 2;
-    }
-
-    string name = 1;
-    optional string phoneNumber = 2;
-    optional PhoneType type = 3;
+  enum Status {
+    APPROVED = 0;
+    REJECTED = 1;
   }
 
-  Contact contact = 2;
+  Status status = 2;
 }
 
 message FetchRequest {
