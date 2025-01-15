@@ -19,34 +19,26 @@ message MarketDataRequest {
 }
 
 message MarketDataResponse {
-  bool acknowledged = 1;
-
-  message Contact {
-
-    enum PhoneType {
-      MOBILE = 0;
-      HOME = 1;
-      WORK = 2;
-    }
-
-    string name = 1;
-    optional string phoneNumber = 2;
-    optional PhoneType type = 3;
+  enum Status {
+    APPROVED = 0;
+    REJECTED = 1;
   }
 
-  Contact contact = 2;
+  Status status = 2;
 }
 
 message FetchRequest {
   string name = 1;
-  int64 count = 2;
-  optional int64 since = 3;
 }
 
 message FetchResponse {
   string name = 1;
   int64 price = 2;
   int64 timestamp = 3;
+}
+
+message FetchMultipleResponse {
+  repeated FetchResponse data = 1;
 }
 
 service LiveMarketDataService {
@@ -57,7 +49,7 @@ service LiveMarketDataService {
   rpc Get(FetchRequest) returns (stream FetchResponse);
 
   //Client Streaming
-  rpc GetMultiple(stream FetchRequest) returns (FetchResponse);
+  rpc GetMultiple(stream FetchRequest) returns (FetchMultipleResponse);
 
   //Bi Directional Streaming
   rpc GetAll(stream FetchRequest) returns (stream FetchResponse);

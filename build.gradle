@@ -29,7 +29,7 @@ dependencies {
 
 	implementation 'io.grpc:grpc-services'
 	implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
-
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.grpc:spring-grpc-test'
