@@ -1,6 +1,7 @@
 package com.abl.lmd.persistance;
 
 import com.abl.lmd.model.StockHistoryEntry;
+import com.abl.lmd.model.StockSearchInfo;
 import com.abl.lmd.persistance.dao.DataAccessUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ public class StockHistoryReactiveRepository {
         return dataAccessUnit.save(entry);
     }
 
-    public Flux<StockHistoryEntry> find(StockHistoryEntry entry) {
-        return dataAccessUnit.find(entry);
+    public Flux<StockHistoryEntry> find(StockSearchInfo searchInfo) {
+        return dataAccessUnit.find(searchInfo);
     }
 }

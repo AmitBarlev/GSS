@@ -4,11 +4,9 @@ import com.abl.live.market.data.stubs.FetchRequest;
 import com.abl.live.market.data.stubs.FetchResponse;
 import com.abl.live.market.data.stubs.MarketDataRequest;
 import com.abl.live.market.data.stubs.MarketDataResponse;
-import com.abl.lmd.converter.FetchResponseConverter;
-import com.abl.lmd.converter.MarketDataResponseConverter;
-import com.abl.lmd.converter.StockHistoryEntryConverter;
-import com.abl.lmd.converter.StockInfoConverter;
+import com.abl.lmd.converter.*;
 import com.abl.lmd.model.StockInfo;
+import com.abl.lmd.model.StockSearchInfo;
 import com.abl.lmd.persistance.StockHistoryReactiveRepository;
 import com.abl.lmd.persistance.StockInfoReactiveRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +22,9 @@ public class StockService {
     private final StockHistoryReactiveRepository stockHistoryRepository;
 
     public Mono<MarketDataResponse> update(MarketDataRequest request) {
+        StockSearchInfo searchInfo = StockSearchInfoConverter.convert(request);
         StockInfo info = StockInfoConverter.convert(request);
-        return stockInfoRepository.findAndReplace(info)
+        return stockInfoRepository.findAndReplace(searchInfo, info)
                 .map(StockHistoryEntryConverter::convert)
                 .doOnNext(stockHistoryRepository::save)
                 .map(ignored -> MarketDataResponseConverter.convert(MarketDataResponse.Status.APPROVED))
@@ -34,10 +33,10 @@ public class StockService {
 
     public Flux<FetchResponse> get(FetchRequest request) {
         Mono<FetchResponse> mostUpdatedEntry = stockInfoRepository
-                .findOne(StockInfoConverter.convert(request))
+                .findOne(StockSearchInfoConverter.convert(request))
                 .map(FetchResponseConverter::convert);
 
-        Flux<FetchResponse> history = stockHistoryRepository.find(StockHistoryEntryConverter.convert(request))
+        Flux<FetchResponse> history = stockHistoryRepository.find(StockSearchInfoConverter.convert(request))
                 .map(FetchResponseConverter::convert);
 
         return Flux.merge(mostUpdatedEntry, history);

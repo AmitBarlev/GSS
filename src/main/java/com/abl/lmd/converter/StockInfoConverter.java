@@ -16,10 +16,4 @@ public class StockInfoConverter {
                 request.getDescription(),
                 request.getSourcesList().stream().map(Enum::name).toList());
     }
-
-    public static StockInfo convert(FetchRequest request) {
-        return new StockInfo(
-                request.getName()
-        );
-    }
 }

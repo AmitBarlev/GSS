@@ -2,8 +2,8 @@ package com.abl.lmd.service.grpc;
 
 import com.abl.live.market.data.stubs.*;
 import com.abl.lmd.service.StockService;
-import com.abl.lmd.service.grpc.stream.GetAllStreamObserver;
-import com.abl.lmd.service.grpc.stream.GetMultipleStreamObserver;
+import com.abl.lmd.service.grpc.stream.GetAllBidirectionalStreamObserver;
+import com.abl.lmd.service.grpc.stream.GetMultipleClientStreamObserver;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.grpc.server.service.GrpcService;
@@ -18,24 +18,23 @@ public class LiveMarketDataService extends LiveMarketDataServiceGrpc.LiveMarketD
     @Override
     public void update(MarketDataRequest request, StreamObserver<MarketDataResponse> responseObserver) {
         stockService.update(request)
-                .doOnNext(responseObserver::onNext)
-                .subscribe(ignored -> responseObserver.onCompleted());
+                .subscribe(responseObserver::onNext, responseObserver::onError, responseObserver::onCompleted);
     }
 
     @Override
     public void get(FetchRequest request, StreamObserver<FetchResponse> responseObserver) {
-        stockService.get()
-                .subscribe(responseObserver::onNext);
+        stockService.get(request)
+                .subscribe(responseObserver::onNext, responseObserver::onError, responseObserver::onCompleted);
     }
 
     @Override
-    public StreamObserver<FetchRequest> getMultiple(StreamObserver<FetchResponse> responseObserver) {
-        return new GetMultipleStreamObserver(responseObserver);
+    public StreamObserver<FetchRequest> getMultiple(StreamObserver<FetchMultipleResponse> responseObserver) {
+        return new GetMultipleClientStreamObserver(responseObserver, stockService);
     }
 
     @Override
     public StreamObserver<FetchRequest> getAll(StreamObserver<FetchResponse> responseObserver) {
-        return new GetAllStreamObserver(responseObserver);
+        return new GetAllBidirectionalStreamObserver(responseObserver, stockService);
     }
 
 }
