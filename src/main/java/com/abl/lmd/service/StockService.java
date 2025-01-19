@@ -28,7 +28,7 @@ public class StockService {
                 .map(StockHistoryEntryConverter::convert)
                 .doOnNext(stockHistoryRepository::save)
                 .map(ignored -> MarketDataResponseConverter.convert(MarketDataResponse.Status.APPROVED))
-                .doOnError(ignored -> MarketDataResponseConverter.convert(MarketDataResponse.Status.REJECTED));
+                .onErrorResume(ex -> Mono.just(MarketDataResponseConverter.convert(MarketDataResponse.Status.REJECTED)));
     }
 
     public Flux<FetchResponse> get(FetchRequest request) {
@@ -36,7 +36,8 @@ public class StockService {
                 .findOne(StockSearchInfoConverter.convert(request))
                 .map(FetchResponseConverter::convert);
 
-        Flux<FetchResponse> history = stockHistoryRepository.find(StockSearchInfoConverter.convert(request))
+        Flux<FetchResponse> history = stockHistoryRepository
+                .find(StockSearchInfoConverter.convert(request))
                 .map(FetchResponseConverter::convert);
 
         return Flux.merge(mostUpdatedEntry, history);

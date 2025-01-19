@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Component
 @Profile("local")
 @RequiredArgsConstructor
-public class MongoDataAccessUnit implements DataAccessUnit {
+public class MongoDataAccessObject implements DataAccessObject {
 
     private final ReactiveMongoTemplate template;
 

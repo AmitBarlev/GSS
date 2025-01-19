@@ -31,6 +31,7 @@ dependencies {
 	implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 
+	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.grpc:spring-grpc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

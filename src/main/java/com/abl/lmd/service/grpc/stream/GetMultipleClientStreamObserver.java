@@ -5,6 +5,7 @@ import com.abl.live.market.data.stubs.FetchRequest;
 import com.abl.live.market.data.stubs.FetchResponse;
 import com.abl.lmd.service.StockService;
 import io.grpc.stub.StreamObserver;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,7 @@ public class GetMultipleClientStreamObserver implements StreamObserver<FetchRequ
     private final StreamObserver<FetchMultipleResponse> responseObserver;
     private final StockService stockService;
 
+    @Getter
     private final List<FetchResponse> responses = new ArrayList<>();
 
     @Override

@@ -3,19 +3,11 @@ syntax = "proto3";
 option java_package = "com.abl.live.market.data.stubs";
 option java_multiple_files = true;
 
-enum Source {
-  UNKNOWN = 0;
-  OFFICIAL = 1;
-  THIRD_PARTY = 2;
-  INSIDER = 3;
-}
-
 message MarketDataRequest {
   string name = 1;
   int64 price = 2;
   int64 timestamp = 3;
   optional string description = 4;
-  repeated Source sources = 5;
 }
 
 message MarketDataResponse {

@@ -6,21 +6,26 @@ import com.abl.lmd.model.StockInfo;
 import com.abl.lmd.model.StockSearchInfo;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Component
 @Profile("dev")
-@RequiredArgsConstructor
-public class InMemoryDataAccessUnit implements DataAccessUnit {
+public class InMemoryDataAccessObject implements DataAccessObject {
 
+    @Setter
     private List<StockInfo> stockInfo;
+
+    @Setter
     private List<StockHistoryEntry> historyEntries;
 
     @PostConstruct
@@ -34,21 +39,24 @@ public class InMemoryDataAccessUnit implements DataAccessUnit {
         return Mono.justOrEmpty(stockInfo.stream()
                 .filter(element -> info.name().equals(element.name()))
                 .findFirst());
-
     }
 
     @Override
     public Mono<StockInfo> findAndReplace(StockSearchInfo searchInfo, StockInfo replacement) {
-        IntStream.range(0, stockInfo.size())
-                .filter(i -> stockInfo.get(i).name().equals(replacement.name()) &&
-                        stockInfo.get(i).timestamp() < replacement.timestamp())
-                .findFirst()
-                .ifPresentOrElse(
-                        i -> stockInfo.set(i, replacement),
-                        () -> stockInfo.add(replacement)
-                );
+        //Not very efficient, but since it's mostly for debugging, it's fine.
 
-        return Mono.just(replacement);
+        StockInfo output = stockInfo.stream()
+                .filter(info -> info.name().equals(replacement.name()))
+                .findFirst()
+                .map(info -> stockInfo.set(stockInfo.indexOf(info), replacement))
+                .orElseGet(() -> {
+                    stockInfo.add(replacement);
+                    return null;
+                });
+
+        return Optional.ofNullable(output)
+                .map(Mono::just)
+                .orElseGet(Mono::empty);
     }
 
     @Override
