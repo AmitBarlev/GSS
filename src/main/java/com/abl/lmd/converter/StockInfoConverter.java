@@ -13,7 +13,6 @@ public class StockInfoConverter {
                 request.getPrice(),
                 request.getTimestamp(),
                 Instant.now().getEpochSecond(),
-                request.getDescription(),
-                request.getSourcesList().stream().map(Enum::name).toList());
+                request.getDescription());
     }
 }

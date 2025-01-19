@@ -14,7 +14,6 @@ public class LiveMarketDataService extends LiveMarketDataServiceGrpc.LiveMarketD
 
     private final StockService stockService;
 
-
     @Override
     public void update(MarketDataRequest request, StreamObserver<MarketDataResponse> responseObserver) {
         stockService.update(request)

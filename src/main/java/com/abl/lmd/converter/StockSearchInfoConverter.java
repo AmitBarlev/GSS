@@ -17,4 +17,6 @@ public class StockSearchInfoConverter {
                 request.getName()
         );
     }
+
+
 }

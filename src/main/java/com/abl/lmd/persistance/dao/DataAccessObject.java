@@ -6,7 +6,7 @@ import com.abl.lmd.model.StockSearchInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface DataAccessUnit {
+public interface DataAccessObject {
 
     Mono<StockInfo> findOne(StockSearchInfo info);
 
