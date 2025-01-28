@@ -23,7 +23,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -344,4 +343,84 @@ class LmdApplicationTests {
 		assertTrue(response.getValues().get(0).getDataList().isEmpty());
 	}
 
+	@Test
+	@DirtiesContext
+	public void getAll_oneEntryButQueryOtherName_emptyList() throws Exception {
+		String a = "A";
+		MarketDataRequest request1 = MarketDataRequest.newBuilder()
+				.setName(a)
+				.setPrice(1L)
+				.setTimestamp(222L)
+				.build();
+
+		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
+		stub.update(request1, mdResponse);
+		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+
+		StreamRecorder<FetchResponse> response = StreamRecorder.create();
+		StreamObserver<FetchRequest> requestObserver = stub
+				.getAll(response);
+
+		requestObserver.onNext(FetchRequest.newBuilder()
+				.setName("b")
+				.build());
+
+		requestObserver.onCompleted();
+
+		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		assertTrue(response.getValues().isEmpty());
+	}
+
+	@Test
+	@DirtiesContext
+	public void getAll_sanity_3DifferentStocks() throws Exception {
+		String a = "A";
+		String b = "B";
+		String c = "C";
+
+		updateStock(a, 1L, 111L);
+		updateStock(a, 2L, 222L);
+		updateStock(a, 3L, 333L);
+		updateStock(b, 4L, 444L);
+		updateStock(c, 5L, 555L);
+		updateStock(c, 6L, 666L);
+
+		StreamRecorder<FetchResponse> response = StreamRecorder.create();
+		StreamObserver<FetchRequest> requestObserver = stub.getAll(response);
+
+		requestObserver.onNext(FetchRequest.newBuilder()
+				.setName(b)
+				.build());
+
+		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
+		assertEquals(1, response.getValues().size());
+
+		requestObserver.onNext(FetchRequest.newBuilder()
+				.setName(a)
+				.build());
+
+		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
+		assertEquals(4, response.getValues().size());
+
+		requestObserver.onNext(FetchRequest.newBuilder()
+				.setName(c)
+				.build());
+
+		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
+		assertEquals(6, response.getValues().size());
+
+		requestObserver.onCompleted();
+	}
+
+	private void updateStock(String name, long price, long timestamp) throws Exception {
+		MarketDataRequest aRequest = MarketDataRequest.newBuilder()
+				.setName(name)
+				.setPrice(price)
+				.setTimestamp(timestamp)
+				.build();
+
+		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
+		stub.update(aRequest, mdResponse);
+		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+	}
 }
