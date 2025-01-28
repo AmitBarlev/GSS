@@ -1,4 +1,4 @@
-package com.abl.lmd.persistance.dao;
+package com.abl.lmd.persistence.dao;
 
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockInfo;
@@ -34,7 +34,9 @@ public class MongoDataAccessObject implements DataAccessObject {
         Criteria criteria = Criteria
                 .where(StockSearchInfo.NAME_FIELD).is(searchInfo.name());
 
-        FindAndReplaceOptions options = FindAndReplaceOptions.empty().upsert();
+        FindAndReplaceOptions options = FindAndReplaceOptions
+                .options()
+                .upsert();
         return template.findAndReplace(new Query(criteria), replacement, options,
                 StockInfo.class, StockInfo.COLLECTION);
     }

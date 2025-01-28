@@ -1,4 +1,4 @@
-package com.abl.lmd.persistance.dao;
+package com.abl.lmd.persistence.dao;
 
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockInfo;
@@ -16,9 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;

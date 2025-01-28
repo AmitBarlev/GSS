@@ -1,22 +1,19 @@
-package com.abl.lmd.persistance.dao;
+package com.abl.lmd.persistence.dao;
 
 
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockInfo;
 import com.abl.lmd.model.StockSearchInfo;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Component
 @Profile("dev")

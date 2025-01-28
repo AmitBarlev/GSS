@@ -1,8 +1,8 @@
-package com.abl.lmd.persistance;
+package com.abl.lmd.persistence;
 
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockSearchInfo;
-import com.abl.lmd.persistance.dao.DataAccessObject;
+import com.abl.lmd.persistence.dao.DataAccessObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

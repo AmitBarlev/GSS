@@ -8,6 +8,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +19,16 @@ public class GetMultipleClientStreamObserver implements StreamObserver<FetchRequ
 
     private final StreamObserver<FetchMultipleResponse> responseObserver;
     private final StockService stockService;
+    private final List<Flux<FetchResponse>> publishers = new ArrayList<>();
 
     @Getter
     private final List<FetchResponse> responses = new ArrayList<>();
 
     @Override
     public void onNext(FetchRequest value) {
-        stockService.get(value)
-                .subscribe(responses::add);
+        Flux<FetchResponse> response = stockService.get(value);
+        publishers.add(response);
+        response.subscribe(responses::add);
     }
 
     @Override
@@ -35,11 +38,11 @@ public class GetMultipleClientStreamObserver implements StreamObserver<FetchRequ
 
     @Override
     public void onCompleted() {
-        responseObserver.onNext(FetchMultipleResponse.newBuilder()
-                .addAllData(responses)
-                .build());
-
-        responseObserver.onCompleted();
-        responses.clear();
+        Flux.merge(publishers)
+                .collectList()
+                .map(list -> FetchMultipleResponse.newBuilder()
+                        .addAllData(responses)
+                        .build())
+                .subscribe(responseObserver::onNext, responseObserver::onError, responseObserver::onCompleted);
     }
 }

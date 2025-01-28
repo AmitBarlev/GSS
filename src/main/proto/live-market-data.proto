@@ -35,14 +35,14 @@ message FetchMultipleResponse {
 
 service LiveMarketDataService {
   //Unary to Unary
-  rpc Update(MarketDataRequest) returns (MarketDataResponse);
+  rpc update(MarketDataRequest) returns (MarketDataResponse);
 
   //Server Streaming
-  rpc Get(FetchRequest) returns (stream FetchResponse);
+  rpc get(FetchRequest) returns (stream FetchResponse);
 
   //Client Streaming
-  rpc GetMultiple(stream FetchRequest) returns (FetchMultipleResponse);
+  rpc getMultiple(stream FetchRequest) returns (FetchMultipleResponse);
 
   //Bi Directional Streaming
-  rpc GetAll(stream FetchRequest) returns (stream FetchResponse);
+  rpc getAll(stream FetchRequest) returns (stream FetchResponse);
 }

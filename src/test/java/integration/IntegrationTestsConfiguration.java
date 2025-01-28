@@ -1,29 +1,44 @@
 package integration;
 
 import com.abl.live.market.data.stubs.LiveMarketDataServiceGrpc;
+import com.abl.lmd.service.grpc.LiveMarketDataService;
 import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.grpc.client.ChannelBuilderOptions;
-import org.springframework.grpc.client.GrpcChannelFactory;
-import org.testcontainers.mongodb.MongoDBAtlasLocalContainer;
+
+import java.io.IOException;
 
 @Configuration
 public class IntegrationTestsConfiguration {
 
     @Autowired
-    private GrpcChannelFactory factory;
+    private LiveMarketDataService service;
 
-    @Bean
-    public ManagedChannel channel() {
-        ChannelBuilderOptions options = ChannelBuilderOptions.defaults();
-        return factory.createChannel("localhost:6565", options);
-    }
+    private static final String PROCESS_NAME = "LMD";
 
     @Bean
     public LiveMarketDataServiceGrpc.LiveMarketDataServiceStub stub(ManagedChannel channel) {
         return LiveMarketDataServiceGrpc.newStub(channel);
+    }
+
+    @Bean
+    public Server inProcessServer() throws IOException {
+        return InProcessServerBuilder.forName(PROCESS_NAME)
+                .directExecutor()
+                .addService(service)
+                .build()
+                .start();
+    }
+
+    @Bean
+    public ManagedChannel channel() {
+        return InProcessChannelBuilder.forName(PROCESS_NAME)
+                .directExecutor()
+                .build();
     }
 
 }

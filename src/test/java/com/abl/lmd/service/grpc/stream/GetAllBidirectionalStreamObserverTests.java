@@ -59,7 +59,7 @@ public class GetAllBidirectionalStreamObserverTests {
     }
 
     @Test
-    public void onCompleted_sanity_responseObserverOnNextTriggered() {
+    public void onCompleted_sanity_responseObserverOnCompletedTriggered() {
         getAllBidirectionalStreamObserver.onCompleted();
 
         verify(streamObserver).onCompleted();
