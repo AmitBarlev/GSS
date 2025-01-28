@@ -1,8 +1,8 @@
-package com.abl.lmd.persistance;
+package com.abl.lmd.persistence;
 
 import com.abl.lmd.model.StockInfo;
 import com.abl.lmd.model.StockSearchInfo;
-import com.abl.lmd.persistance.dao.DataAccessObject;
+import com.abl.lmd.persistence.dao.DataAccessObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;

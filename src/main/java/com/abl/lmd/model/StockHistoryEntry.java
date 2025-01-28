@@ -4,7 +4,7 @@ import lombok.Generated;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Generated
-@Document(collation = StockHistoryEntry.COLLECTION)
+@Document(collection = StockHistoryEntry.COLLECTION)
 public record StockHistoryEntry(String name,
                                 long price,
                                 long timestamp) {

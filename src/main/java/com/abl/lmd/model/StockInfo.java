@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Generated
 
-@Document(collation = StockInfo.COLLECTION)
+@Document(collection = StockInfo.COLLECTION)
 public record StockInfo(@Id String name,
                         long price,
                         long timestamp,

@@ -7,8 +7,8 @@ import com.abl.live.market.data.stubs.MarketDataResponse;
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockInfo;
 import com.abl.lmd.model.StockSearchInfo;
-import com.abl.lmd.persistance.StockHistoryReactiveRepository;
-import com.abl.lmd.persistance.StockInfoReactiveRepository;
+import com.abl.lmd.persistence.StockHistoryReactiveRepository;
+import com.abl.lmd.persistence.StockInfoReactiveRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,7 +96,7 @@ public class StockServiceTests {
 
         StockInfo last = new StockInfo(name, 1, 2, 3, "");
         doReturn(Mono.just(last)).when(stockInfoRepository).findAndReplace(any(StockSearchInfo.class), any(StockInfo.class));
-        doReturn(null).when(stockHistoryRepository).save(any(StockHistoryEntry.class));
+        doReturn(Mono.just(mock(StockHistoryEntry.class))).when(stockHistoryRepository).save(any(StockHistoryEntry.class));
 
         StepVerifier.create(stockService.update(request))
                 .assertNext(response -> assertEquals(MarketDataResponse.Status.APPROVED, response.getStatus()))

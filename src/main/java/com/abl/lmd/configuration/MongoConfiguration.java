@@ -9,10 +9,12 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.SimpleReactiveMongoDatabaseFactory;
 
+@Profile("local")
 @Configuration
 @RequiredArgsConstructor
 public class MongoConfiguration {

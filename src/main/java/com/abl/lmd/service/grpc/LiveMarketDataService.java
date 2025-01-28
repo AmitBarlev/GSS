@@ -6,9 +6,11 @@ import com.abl.lmd.service.grpc.stream.GetAllBidirectionalStreamObserver;
 import com.abl.lmd.service.grpc.stream.GetMultipleClientStreamObserver;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.grpc.server.service.GrpcService;
 
 @GrpcService
+@Slf4j
 @RequiredArgsConstructor
 public class LiveMarketDataService extends LiveMarketDataServiceGrpc.LiveMarketDataServiceImplBase {
 

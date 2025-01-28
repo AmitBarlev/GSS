@@ -1,4 +1,4 @@
-package com.abl.lmd.persistance.dao;
+package com.abl.lmd.persistence.dao;
 
 import com.abl.lmd.model.StockHistoryEntry;
 import com.abl.lmd.model.StockInfo;
