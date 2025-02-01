@@ -1,10 +1,10 @@
 spring:
   application:
-    name: LMD
+    name: GSS
   grpc:
     server:
       port: 9090
 
 mongo:
-  database-name: "lmd"
+  database-name: "gss"
   connection-string: "mongodb://localhost:27017"
