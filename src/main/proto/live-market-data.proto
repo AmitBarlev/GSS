@@ -33,7 +33,7 @@ message FetchMultipleResponse {
   repeated FetchResponse data = 1;
 }
 
-service LiveMarketDataService {
+service GrpcStockService {
   //Unary to Unary
   rpc update(MarketDataRequest) returns (MarketDataResponse);
 

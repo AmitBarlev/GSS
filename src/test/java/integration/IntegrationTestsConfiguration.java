@@ -1,7 +1,7 @@
 package integration;
 
 import com.abl.live.market.data.stubs.LiveMarketDataServiceGrpc;
-import com.abl.lmd.service.grpc.LiveMarketDataService;
+import com.abl.gss.service.grpc.LiveMarketDataService;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -18,7 +18,7 @@ public class IntegrationTestsConfiguration {
     @Autowired
     private LiveMarketDataService service;
 
-    private static final String PROCESS_NAME = "LMD";
+    private static final String PROCESS_NAME = "GSS";
 
     @Bean
     public LiveMarketDataServiceGrpc.LiveMarketDataServiceStub stub(ManagedChannel channel) {
