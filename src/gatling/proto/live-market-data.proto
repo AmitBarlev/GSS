@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option java_package = "com.abl.live.market.data.stubs";
+option java_multiple_files = true;
+
+message MarketDataRequest {
+  string name = 1;
+  int64 price = 2;
+  int64 timestamp = 3;
+  optional string description = 4;
+}
+
+message MarketDataResponse {
+  enum Status {
+    APPROVED = 0;
+    REJECTED = 1;
+  }
+
+  Status status = 2;
+}
+
+message FetchRequest {
+  string name = 1;
+}
+
+message FetchResponse {
+  string name = 1;
+  int64 price = 2;
+  int64 timestamp = 3;
+}
+
+message FetchMultipleResponse {
+  repeated FetchResponse data = 1;
+}
+
+service LiveMarketDataService {
+  //Unary to Unary
+  rpc update(MarketDataRequest) returns (MarketDataResponse);
+
+  //Server Streaming
+  rpc get(FetchRequest) returns (stream FetchResponse);
+
+  //Client Streaming
+  rpc getMultiple(stream FetchRequest) returns (FetchMultipleResponse);
+
+  //Bi Directional Streaming
+  rpc getAll(stream FetchRequest) returns (stream FetchResponse);
+}

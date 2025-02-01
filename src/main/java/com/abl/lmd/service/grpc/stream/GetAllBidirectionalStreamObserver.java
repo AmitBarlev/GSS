@@ -7,6 +7,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,10 @@ public class GetAllBidirectionalStreamObserver implements StreamObserver<FetchRe
     private final StreamObserver<FetchResponse> responseObserver;
     private final StockService stockService;
 
-    private final List<Flux<FetchResponse>> publishers = new ArrayList<>();
-
     @Override
     public void onNext(FetchRequest value) {
-        Flux<FetchResponse> response = stockService.get(value);
-        publishers.add(response);
-        response.subscribe(responseObserver::onNext);
+        stockService.get(value)
+                .subscribe(responseObserver::onNext);
     }
 
     @Override
@@ -34,9 +32,6 @@ public class GetAllBidirectionalStreamObserver implements StreamObserver<FetchRe
 
     @Override
     public void onCompleted() {
-        Flux.merge(publishers)
-                .collectList()
-                .subscribe(ignored -> responseObserver.onCompleted());
-        ;
+        responseObserver.onCompleted();
     }
 }

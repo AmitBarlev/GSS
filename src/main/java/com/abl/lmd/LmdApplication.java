@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoCo
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
 
-@SpringBootApplication(exclude = {MongoReactiveDataAutoConfiguration.class})
+@SpringBootApplication(exclude = {
+		MongoReactiveAutoConfiguration.class,
+		MongoAutoConfiguration.class,
+		MongoReactiveDataAutoConfiguration.class})
 public class LmdApplication {
 
 	public static void main(String[] args) {

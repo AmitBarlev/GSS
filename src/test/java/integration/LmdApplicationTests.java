@@ -31,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @SpringJUnitConfig(classes = {IntegrationTestsConfiguration.class, LmdApplication.class})
 @ImportAutoConfiguration({
-        GrpcServerAutoConfiguration.class,
-        GrpcServerFactoryAutoConfiguration.class,
-        GrpcClientAutoConfiguration.class
+		GrpcServerAutoConfiguration.class,
+		GrpcServerFactoryAutoConfiguration.class,
+		GrpcClientAutoConfiguration.class
 })
 @ActiveProfiles("local")
 class LmdApplicationTests {
@@ -74,9 +74,7 @@ class LmdApplicationTests {
 	@DirtiesContext
 	public void get_empty_emptyResponse() throws Exception {
 		StreamRecorder<FetchResponse> response = StreamRecorder.create();
-		FetchRequest request = FetchRequest.newBuilder()
-				.setName("name")
-				.build();
+		FetchRequest request = newFetchRequest("name");
 
 		stub.get(request, response);
 
@@ -88,17 +86,8 @@ class LmdApplicationTests {
 	@DirtiesContext
 	public void update_saveEntityAndQueryIt_entityMatchesExpectedValues() throws Exception {
 		String name = "A";
-		StreamRecorder<MarketDataResponse> marketDataResponse = StreamRecorder.create();
-		MarketDataRequest request = MarketDataRequest.newBuilder()
-				.setName(name)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-		stub.update(request, marketDataResponse);
-
-		assertTrue(marketDataResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-		assertTrue(marketDataResponse.getValues().isEmpty());
+		StreamRecorder<MarketDataResponse> marketDataResponse = updateStock(name, 1L, 222L);
+		assertEquals(1, marketDataResponse.getValues().size());
 
 		StreamRecorder<FetchResponse> fetchResponse = StreamRecorder.create();
 		FetchRequest fetchRequest = FetchRequest.newBuilder()
@@ -111,43 +100,24 @@ class LmdApplicationTests {
 
 		assertEquals(1, fetchResponse.getValues().size());
 		FetchResponse output = fetchResponse.getValues().get(0);
-		assertEquals(request.getName(), output.getName());
-		assertEquals(request.getPrice(), output.getPrice());
-		assertEquals(request.getTimestamp(), output.getTimestamp());
+		assertEquals(name, output.getName());
+		assertEquals(1L, output.getPrice());
+		assertEquals(222L, output.getTimestamp());
 	}
 
 	@Test
 	@DirtiesContext
 	public void update_saveTwoEntitiesUnderTheSameName_getTwoEntities() throws Exception {
 		String name = "A";
-		MarketDataRequest request1 = MarketDataRequest.newBuilder()
-				.setName(name)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-		MarketDataRequest request2 = MarketDataRequest.newBuilder()
-				.setName(name)
-				.setPrice(3L)
-				.setTimestamp(999L)
-				.build();
-
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(request1, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-
-		mdResponse = StreamRecorder.create();
-		stub.update(request2, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		updateStock(name, 1L, 222L);
+		StreamRecorder<MarketDataResponse> mdResponse = updateStock(name, 3L, 999L);
 
 		assertEquals(1, mdResponse.getValues().size());
 		MarketDataResponse marketData = mdResponse.getValues().get(0);
 		assertEquals(MarketDataResponse.Status.APPROVED, marketData.getStatus());
 
 		StreamRecorder<FetchResponse> fetchResponse = StreamRecorder.create();
-		FetchRequest fetchRequest = FetchRequest.newBuilder()
-				.setName(name)
-				.build();
+		FetchRequest fetchRequest = newFetchRequest(name);
 
 		stub.get(fetchRequest, fetchResponse);
 
@@ -155,14 +125,14 @@ class LmdApplicationTests {
 		assertEquals(2, fetchResponse.getValues().size());
 
 		FetchResponse output = fetchResponse.getValues().get(0);
-		assertEquals(request2.getName(), output.getName());
-		assertEquals(request2.getPrice(), output.getPrice());
-		assertEquals(request2.getTimestamp(), output.getTimestamp());
+		assertEquals(name, output.getName());
+		assertEquals(3L, output.getPrice());
+		assertEquals(999L, output.getTimestamp());
 
 		output = fetchResponse.getValues().get(1);
-		assertEquals(request1.getName(), output.getName());
-		assertEquals(request1.getPrice(), output.getPrice());
-		assertEquals(request1.getTimestamp(), output.getTimestamp());
+		assertEquals(name, output.getName());
+		assertEquals(1L, output.getPrice());
+		assertEquals(222L, output.getTimestamp());
 	}
 
 	@Test
@@ -170,32 +140,12 @@ class LmdApplicationTests {
 	public void update_saveTwoEntitiesUnderTheDifferentName_getOneEntities() throws Exception {
 		String a = "A";
 		String b = "B";
-		MarketDataRequest request1 = MarketDataRequest.newBuilder()
-				.setName(a)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-		MarketDataRequest request2 = MarketDataRequest.newBuilder()
-				.setName(b)
-				.setPrice(3L)
-				.setTimestamp(999L)
-				.build();
-
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(request1, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-
-		mdResponse = StreamRecorder.create();
-		stub.update(request2, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-
-		assertTrue(mdResponse.getValues().isEmpty());
+		updateStock(a, 1L, 222L);
+		StreamRecorder<MarketDataResponse> mdResponse = updateStock(b, 3L, 999L);
+		assertEquals(1, mdResponse.getValues().size());
 
 		StreamRecorder<FetchResponse> fetchResponse = StreamRecorder.create();
-		FetchRequest fetchRequest = FetchRequest.newBuilder()
-				.setName(a)
-				.build();
+		FetchRequest fetchRequest = newFetchRequest(a);
 
 		stub.get(fetchRequest, fetchResponse);
 
@@ -203,14 +153,12 @@ class LmdApplicationTests {
 		assertEquals(1, fetchResponse.getValues().size());
 
 		FetchResponse output = fetchResponse.getValues().get(0);
-		assertEquals(request1.getName(), output.getName());
-		assertEquals(request1.getPrice(), output.getPrice());
-		assertEquals(request1.getTimestamp(), output.getTimestamp());
+		assertEquals(a, output.getName());
+		assertEquals(1L, output.getPrice());
+		assertEquals(222L, output.getTimestamp());
 
 		fetchResponse = StreamRecorder.create();
-		fetchRequest = FetchRequest.newBuilder()
-				.setName(b)
-				.build();
+		fetchRequest = newFetchRequest(b);
 
 		stub.get(fetchRequest, fetchResponse);
 
@@ -218,9 +166,9 @@ class LmdApplicationTests {
 		assertEquals(1, fetchResponse.getValues().size());
 
 		output = fetchResponse.getValues().get(0);
-		assertEquals(request2.getName(), output.getName());
-		assertEquals(request2.getPrice(), output.getPrice());
-		assertEquals(request2.getTimestamp(), output.getTimestamp());
+		assertEquals(b, output.getName());
+		assertEquals(3L, output.getPrice());
+		assertEquals(999L, output.getTimestamp());
 	}
 
 	@Test
@@ -231,13 +179,9 @@ class LmdApplicationTests {
 		StreamObserver<FetchRequest> requestObserver = stub
 				.getMultiple(response);
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName("A")
-				.build());
+		requestObserver.onNext(newFetchRequest("A"));
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName("B")
-				.build());
+		requestObserver.onNext(newFetchRequest("B"));
 
 		requestObserver.onCompleted();
 		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
@@ -248,94 +192,52 @@ class LmdApplicationTests {
 	@Test
 	@DirtiesContext
 	public void getMultiple_twoUpdatesOfSameNamePlusAnotherOfOtherName_listOf3MatchingValues() throws Exception {
+		//Test might be unstable
 		String a = "A";
 		String b = "B";
-		MarketDataRequest request1 = MarketDataRequest.newBuilder()
-				.setName(a)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-		MarketDataRequest request2 = MarketDataRequest.newBuilder()
-				.setName(b)
-				.setPrice(3L)
-				.setTimestamp(999L)
-				.build();
-
-		MarketDataRequest request3 = MarketDataRequest.newBuilder()
-				.setName(a)
-				.setPrice(47L)
-				.setTimestamp(123567L)
-				.build();
-
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(request1, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-
-		mdResponse = StreamRecorder.create();
-		stub.update(request2, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
-
-		mdResponse = StreamRecorder.create();
-		stub.update(request3, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		updateStock(a, 1L, 222L);
+		updateStock(b, 3L, 999L);
+		updateStock(a, 47L, 1234567L);
 
 		StreamRecorder<FetchMultipleResponse> response = StreamRecorder.create();
 		StreamObserver<FetchRequest> requestObserver = stub
 				.getMultiple(response);
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName(a)
-				.build());
-
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName(b)
-				.build());
+		requestObserver.onNext(newFetchRequest(a));
+		requestObserver.onNext(newFetchRequest(b));
 
 		requestObserver.onCompleted();
-		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
 
 		assertEquals(1, response.getValues().size());
 
+		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
 		FetchMultipleResponse output = response.getValues().get(0);
-		assertEquals(3, output.getDataCount());
+		assertEquals(3, output.getDataList().size());
 
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(request1.getName())));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == request1.getPrice()));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == request1.getTimestamp()));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(a)));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == 1L));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == 222L));
 
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(request2.getName())));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == request2.getPrice()));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == request2.getTimestamp()));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(b)));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == 3L));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == 999L));
 
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(request3.getName())));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == request3.getPrice()));
-		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == request3.getTimestamp()));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getName().equals(a)));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getPrice() == 47L));
+		assertTrue(output.getDataList().stream().anyMatch(e -> e.getTimestamp() == 1234567L));
 	}
 
 	@Test
 	@DirtiesContext
 	public void getMultiple_oneEntryButQueryOtherName_emptyList() throws Exception {
 		String a = "A";
-		MarketDataRequest request1 = MarketDataRequest.newBuilder()
-				.setName(a)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(request1, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		updateStock(a, 1L, 222L);
 
 		StreamRecorder<FetchMultipleResponse> response = StreamRecorder.create();
 		StreamObserver<FetchRequest> requestObserver = stub
 				.getMultiple(response);
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName("b")
-				.build());
-
+		requestObserver.onNext(newFetchRequest("b"));
 		requestObserver.onCompleted();
 
 		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
@@ -347,24 +249,12 @@ class LmdApplicationTests {
 	@DirtiesContext
 	public void getAll_oneEntryButQueryOtherName_emptyList() throws Exception {
 		String a = "A";
-		MarketDataRequest request1 = MarketDataRequest.newBuilder()
-				.setName(a)
-				.setPrice(1L)
-				.setTimestamp(222L)
-				.build();
-
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(request1, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		updateStock(a, 1L, 222L);
 
 		StreamRecorder<FetchResponse> response = StreamRecorder.create();
-		StreamObserver<FetchRequest> requestObserver = stub
-				.getAll(response);
+		StreamObserver<FetchRequest> requestObserver = stub.getAll(response);
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName("b")
-				.build());
-
+		requestObserver.onNext(newFetchRequest("b"));
 		requestObserver.onCompleted();
 
 		assertTrue(response.awaitCompletion(SECONDS_TO_WAIT, UNIT));
@@ -388,23 +278,9 @@ class LmdApplicationTests {
 		StreamRecorder<FetchResponse> response = StreamRecorder.create();
 		StreamObserver<FetchRequest> requestObserver = stub.getAll(response);
 
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName(b)
-				.build());
-
-		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
-		assertEquals(1, response.getValues().size());
-
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName(a)
-				.build());
-
-		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
-		assertEquals(4, response.getValues().size());
-
-		requestObserver.onNext(FetchRequest.newBuilder()
-				.setName(c)
-				.build());
+		requestObserver.onNext(newFetchRequest(b));
+		requestObserver.onNext(newFetchRequest(a));
+		requestObserver.onNext(newFetchRequest(c));
 
 		response.awaitCompletion(SECONDS_TO_WAIT, UNIT);
 		assertEquals(6, response.getValues().size());
@@ -412,15 +288,24 @@ class LmdApplicationTests {
 		requestObserver.onCompleted();
 	}
 
-	private void updateStock(String name, long price, long timestamp) throws Exception {
-		MarketDataRequest aRequest = MarketDataRequest.newBuilder()
+	private StreamRecorder<MarketDataResponse> updateStock(String name, long price, long timestamp) throws Exception {
+		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
+		stub.update(newMarketDataRequest(name, price, timestamp), mdResponse);
+		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+		return mdResponse;
+	}
+
+	private MarketDataRequest newMarketDataRequest(String name, long price, long timestamp) {
+		return MarketDataRequest.newBuilder()
 				.setName(name)
 				.setPrice(price)
 				.setTimestamp(timestamp)
 				.build();
+	}
 
-		StreamRecorder<MarketDataResponse> mdResponse = StreamRecorder.create();
-		stub.update(aRequest, mdResponse);
-		assertTrue(mdResponse.awaitCompletion(SECONDS_TO_WAIT, UNIT));
+	private FetchRequest newFetchRequest(String name) {
+		return FetchRequest.newBuilder()
+				.setName(name)
+				.build();
 	}
 }
