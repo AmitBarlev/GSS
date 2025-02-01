@@ -1,7 +1,7 @@
 package integration;
 
-import com.abl.live.market.data.stubs.LiveMarketDataServiceGrpc;
-import com.abl.gss.service.grpc.LiveMarketDataService;
+import com.abl.gss.service.grpc.GSService;
+import com.abl.live.market.data.stubs.GrpcStockServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -16,13 +16,13 @@ import java.io.IOException;
 public class IntegrationTestsConfiguration {
 
     @Autowired
-    private LiveMarketDataService service;
+    private GSService service;
 
     private static final String PROCESS_NAME = "GSS";
 
     @Bean
-    public LiveMarketDataServiceGrpc.LiveMarketDataServiceStub stub(ManagedChannel channel) {
-        return LiveMarketDataServiceGrpc.newStub(channel);
+    public GrpcStockServiceGrpc.GrpcStockServiceStub stub(ManagedChannel channel) {
+        return GrpcStockServiceGrpc.newStub(channel);
     }
 
     @Bean

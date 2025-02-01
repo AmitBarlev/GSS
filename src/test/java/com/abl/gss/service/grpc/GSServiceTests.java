@@ -15,10 +15,10 @@ import reactor.core.publisher.Mono;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-public class LiveMarketDataServiceTests {
+public class GSServiceTests {
 
     @InjectMocks
-    private LiveMarketDataService service;
+    private GSService service;
 
     @Mock
     private StockService stockService;
