@@ -42,7 +42,7 @@ class GssApplicationTests {
 	private static final TimeUnit UNIT = TimeUnit.SECONDS;
 
 	@Autowired
-	private LiveMarketDataServiceGrpc.LiveMarketDataServiceStub stub;
+	private GrpcStockServiceGrpc.GrpcStockServiceStub stub;
 
 	@Autowired
 	private ReactiveMongoTemplate template;

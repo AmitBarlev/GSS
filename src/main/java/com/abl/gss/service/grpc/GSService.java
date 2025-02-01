@@ -12,7 +12,7 @@ import org.springframework.grpc.server.service.GrpcService;
 @GrpcService
 @Slf4j
 @RequiredArgsConstructor
-public class LiveMarketDataService extends GrpcStockServiceGrpc.GrpcStockServiceImplBase {
+public class GSService extends GrpcStockServiceGrpc.GrpcStockServiceImplBase {
 
     private final StockService stockService;
 

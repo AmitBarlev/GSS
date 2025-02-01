@@ -29,7 +29,7 @@ public class GSSSimulation extends Simulation {
         return scenario("Update")
                 .feed(stockNames)
                 .exec(grpc("update")
-                        .unary(LiveMarketDataServiceGrpc.getUpdateMethod())
+                        .unary(GrpcStockServiceGrpc.getUpdateMethod())
                         .send(session -> MarketDataRequest.newBuilder()
                                 .setName(session.getString("name"))
                                 .setPrice(secureRandom.nextInt())
@@ -46,7 +46,7 @@ public class GSSSimulation extends Simulation {
 
         GrpcServerStreamingServiceBuilder<FetchRequest, FetchResponse> getServerStream =
                 grpc("Get Server Stream")
-                        .serverStream(LiveMarketDataServiceGrpc.getGetMethod())
+                        .serverStream(GrpcStockServiceGrpc.getGetMethod())
                         .check(
                                 statusCode().is(Status.Code.OK)
                         );
@@ -67,7 +67,7 @@ public class GSSSimulation extends Simulation {
 
         GrpcClientStreamingServiceBuilder<FetchRequest, FetchMultipleResponse> getMultipleClientStream =
                 grpc("Get Multiple")
-                        .clientStream(LiveMarketDataServiceGrpc.getGetMultipleMethod())
+                        .clientStream(GrpcStockServiceGrpc.getGetMultipleMethod())
                         .check(
                                 statusCode().is(Status.Code.OK)
                         );
@@ -91,7 +91,7 @@ public class GSSSimulation extends Simulation {
 
         GrpcBidirectionalStreamingServiceBuilder<FetchRequest, FetchResponse> bidirectionalStream =
                 grpc("Get All")
-                        .bidiStream(LiveMarketDataServiceGrpc.getGetAllMethod())
+                        .bidiStream(GrpcStockServiceGrpc.getGetAllMethod())
                         .check(
                                 statusCode().is(Status.Code.OK)
                         );
