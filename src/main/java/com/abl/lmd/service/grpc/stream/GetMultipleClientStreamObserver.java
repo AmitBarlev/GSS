@@ -19,16 +19,13 @@ public class GetMultipleClientStreamObserver implements StreamObserver<FetchRequ
 
     private final StreamObserver<FetchMultipleResponse> responseObserver;
     private final StockService stockService;
-    private final List<Flux<FetchResponse>> publishers = new ArrayList<>();
-
     @Getter
     private final List<FetchResponse> responses = new ArrayList<>();
 
     @Override
     public void onNext(FetchRequest value) {
-        Flux<FetchResponse> response = stockService.get(value);
-        publishers.add(response);
-        response.subscribe(responses::add);
+        stockService.get(value)
+                .subscribe(responses::add);
     }
 
     @Override
@@ -38,11 +35,10 @@ public class GetMultipleClientStreamObserver implements StreamObserver<FetchRequ
 
     @Override
     public void onCompleted() {
-        Flux.merge(publishers)
-                .collectList()
-                .map(list -> FetchMultipleResponse.newBuilder()
-                        .addAllData(responses)
-                        .build())
-                .subscribe(responseObserver::onNext, responseObserver::onError, responseObserver::onCompleted);
+        responseObserver.onNext(FetchMultipleResponse.newBuilder()
+                .addAllData(responses)
+                .build());
+
+        responseObserver.onCompleted();
     }
 }

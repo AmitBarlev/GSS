@@ -28,6 +28,7 @@ public class StockService {
                 .map(StockHistoryEntryConverter::convert)
                 .flatMap(stockHistoryRepository::save)
                 .map(ignored -> MarketDataResponseConverter.convert(MarketDataResponse.Status.APPROVED))
+                .defaultIfEmpty(MarketDataResponseConverter.convert(MarketDataResponse.Status.APPROVED))
                 .onErrorResume(ex -> Mono.just(MarketDataResponseConverter.convert(MarketDataResponse.Status.REJECTED)));
     }
 

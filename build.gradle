@@ -1,14 +1,19 @@
 plugins {
 	id 'java'
+	id 'idea'
+	id 'io.gatling.gradle' version '3.13.3.1'
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.google.protobuf' version '0.9.4'
 }
 
+apply plugin: 'java'
+
 group = 'com.abl'
 version = '0.0.1-SNAPSHOT'
 
 java {
+	sourceCompatibility = '17'
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
@@ -49,6 +54,7 @@ dependencies {
 	testImplementation "org.testcontainers:testcontainers"
 	testImplementation "org.testcontainers:mongodb"
 
+	gatlingImplementation("io.gatling:gatling-grpc-java:3.13.3.1")
 }
 
 dependencyManagement {
@@ -67,6 +73,13 @@ protobuf {
 		}
 	}
 	generateProtoTasks {
+		ofSourceSet("gatling").forEach { task ->
+			compileGatlingJava.dependsOn(task)
+			task.plugins {
+				grpc {}
+			}
+		}
+
 		all()*.plugins {
 			grpc {
 				option 'jakarta_omit'
@@ -76,6 +89,26 @@ protobuf {
 	}
 }
 
+var generatedSources = [
+		file("${protobuf.generatedFilesBaseDir}/gatling/java"),
+		file("${protobuf.generatedFilesBaseDir}/gatling/grpc")
+]
+
+idea {
+	module {
+		generatedSources.forEach { generatedSourceDirs += it }
+	}
+}
+
+sourceSets {
+	gatling {
+		java {
+			generatedSources.forEach { srcDirs += it }
+		}
+	}
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
